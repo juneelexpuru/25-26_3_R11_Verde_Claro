@@ -1,0 +1,320 @@
+[
+    {
+        "id": "tab_rl",
+        "type": "tab",
+        "label": "Agente RL — Mejor Episodio",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "rl_inj_path",
+        "type": "inject",
+        "z": "tab_rl",
+        "name": "Cargar Recorrido",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 190,
+        "y": 100,
+        "wires": [
+            [
+                "rl_file_path"
+            ]
+        ]
+    },
+    {
+        "id": "rl_file_path",
+        "type": "file in",
+        "z": "tab_rl",
+        "name": "Recorrido CSV",
+        "filename": "/data/Datos/mejor_recorrido_agente.csv",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 420,
+        "y": 100,
+        "wires": [
+            [
+                "rl_csv_path"
+            ]
+        ]
+    },
+    {
+        "id": "rl_csv_path",
+        "type": "csv",
+        "z": "tab_rl",
+        "name": "Parse Recorrido",
+        "sep": ",",
+        "hdrin": true,
+        "hdrout": "all",
+        "multi": "mult",
+        "ret": "\n",
+        "temp": "indice,var1,var2,w",
+        "skip": "0",
+        "strings": true,
+        "include_empty_strings": false,
+        "include_null_values": false,
+        "x": 640,
+        "y": 100,
+        "wires": [
+            [
+                "rl_fn_store_path"
+            ]
+        ]
+    },
+    {
+        "id": "rl_fn_store_path",
+        "type": "function",
+        "z": "tab_rl",
+        "name": "Almacenar y Enviar Recorrido",
+        "func": "// Parsea el recorrido, lo guarda en flow context y lo envía al heatmap\nvar rows = Array.isArray(msg.payload) ? msg.payload : [msg.payload];\nvar path = rows.map(function(r) {\n    return { idx: parseInt(r.indice), v1: parseInt(parseFloat(r.var1)),\n             v2: parseInt(parseFloat(r.var2)), w: parseFloat(r.w) };\n}).filter(function(r){ return !isNaN(r.idx); });\npath.sort(function(a,b){return a.idx-b.idx;});\nflow.set('rl_path', path);\nflow.set('rl_step', 0);\nflow.set('rl_bestW', Infinity);\nnode.status({fill:'green', shape:'dot', text: path.length+' pasos cargados ✓'});\nnode.warn('Recorrido RL cargado — '+path.length+' pasos');\n// Convertir a formato de array [idx, v1, v2, w] para el template\nvar pathArr = path.map(function(r){ return [r.idx, r.v1, r.v2, r.w]; });\nmsg.payload = {type: 'path', data: pathArr};\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 890,
+        "y": 100,
+        "wires": [
+            [
+                "rl_tpl_heatmap"
+            ]
+        ]
+    },
+    {
+        "id": "rl_inj_grid",
+        "type": "inject",
+        "z": "tab_rl",
+        "name": "Cargar Malla",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 190,
+        "y": 180,
+        "wires": [
+            [
+                "rl_file_grid"
+            ]
+        ]
+    },
+    {
+        "id": "rl_file_grid",
+        "type": "file in",
+        "z": "tab_rl",
+        "name": "Malla CSV",
+        "filename": "/data/Datos/Datos_v2.csv",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 410,
+        "y": 180,
+        "wires": [
+            [
+                "rl_csv_grid"
+            ]
+        ]
+    },
+    {
+        "id": "rl_csv_grid",
+        "type": "csv",
+        "z": "tab_rl",
+        "name": "Parse Malla",
+        "sep": ",",
+        "hdrin": true,
+        "hdrout": "all",
+        "multi": "mult",
+        "ret": "\n",
+        "temp": "var1,var2,w",
+        "skip": "0",
+        "strings": true,
+        "include_empty_strings": false,
+        "include_null_values": false,
+        "x": 630,
+        "y": 180,
+        "wires": [
+            [
+                "rl_fn_grid_loaded"
+            ]
+        ]
+    },
+    {
+        "id": "rl_fn_grid_loaded",
+        "type": "function",
+        "z": "tab_rl",
+        "name": "Parsear y Enviar Malla",
+        "func": "// Convierte las filas del CSV en array [[v1,v2,w],...] y lo envía al heatmap\nvar rows = Array.isArray(msg.payload) ? msg.payload : [msg.payload];\nvar grid = rows.map(function(r) {\n    return [parseFloat(r.var1), parseFloat(r.var2), parseFloat(r.w)];\n}).filter(function(r){ return !isNaN(r[0]) && !isNaN(r[1]) && !isNaN(r[2]); });\nflow.set('rl_grid', grid);\nnode.status({fill:'green', shape:'dot', text: grid.length+' celdas ✓'});\nnode.warn('Malla cargada — '+grid.length+' celdas');\nmsg.payload = {type: 'grid', data: grid};\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 850,
+        "y": 180,
+        "wires": [
+            [
+                "rl_tpl_heatmap"
+            ]
+        ]
+    },
+    {
+        "id": "rl_tpl_heatmap",
+        "type": "ui_template",
+        "z": "tab_rl",
+        "group": "grp_rl_heatmap",
+        "name": "Mapa de Calor + Recorrido",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "format": "<style>\n.rl-title{color:#7ecfff;font-size:12px;font-weight:700;margin-bottom:6px;letter-spacing:.4px;}\ncanvas{border-radius:6px;display:block;}\n.btn-rl{padding:6px 16px;border:none;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;color:#fff;margin:3px;transition:.15s;}\n.btn-rl:hover{opacity:.82;}\n.spd{padding:4px 10px;border:1px solid #444;border-radius:4px;background:#1a1d27;color:#aaa;font-size:10px;cursor:pointer;margin:2px;}\n.spd.on{background:#2980b9;color:#fff;border-color:#2980b9;}\n#rl-prog-bar{height:5px;background:#222;border-radius:3px;margin:6px 0;}\n#rl-prog-fill{height:100%;background:linear-gradient(90deg,#27ae60,#7ecfff);border-radius:3px;width:0%;transition:width .08s;}\n</style>\n<div style=\"font-family:'Roboto',sans-serif;padding:10px;background:#0f1117;border-radius:8px;\">\n  <div class=\"rl-title\">Malla de Optimización + Recorrido del Agente RL</div>\n  <div style=\"display:flex;align-items:center;flex-wrap:wrap;margin-bottom:8px;gap:2px;\">\n    <button class=\"btn-rl\" style=\"background:#27ae60;\" onclick=\"rlPlay()\">▶ Play</button>\n    <button class=\"btn-rl\" style=\"background:#e67e22;\" onclick=\"rlPause()\">⏸ Pause</button>\n    <button class=\"btn-rl\" style=\"background:#e74c3c;\" onclick=\"rlReset()\">⟳ Reset</button>\n    <span style=\"color:#666;font-size:10px;margin-left:10px;\">Velocidad:</span>\n    <button class=\"spd on\" onclick=\"rlSpd(1,this)\">×1</button>\n    <button class=\"spd\"    onclick=\"rlSpd(2,this)\">×2</button>\n    <button class=\"spd\"    onclick=\"rlSpd(5,this)\">×5</button>\n    <button class=\"spd\"    onclick=\"rlSpd(10,this)\">×10</button>\n    <button class=\"spd\"    onclick=\"rlSpd(50,this)\">×50</button>\n    <span id=\"rl-stepinfo\" style=\"color:#7ecfff;font-size:11px;font-weight:700;margin-left:12px;\">Esperando datos…</span>\n  </div>\n  <div id=\"rl-prog-bar\"><div id=\"rl-prog-fill\"></div></div>\n  <canvas id=\"rl-hm\" width=\"740\" height=\"400\"></canvas>\n  <div style=\"margin-top:6px;display:flex;gap:16px;font-size:10px;color:#888;\">\n    <span>🟢 Inicio &nbsp; 🔴 Agente &nbsp; ⭐ Mínimo global (454, 208) w=20.535</span>\n    <span style=\"margin-left:auto;\">Paleta: azul→verde→amarillo→rojo (w bajo→alto)</span>\n  </div>\n</div>\n<script>\n(function(){\n// ── Datos dinámicos (se cargan desde los nodos CSV) ──────────────────────────\nvar GRID = [];\nvar PATH = [];\nvar W_MIN=20.5352,W_MAX=23.0561,V1_MAX=762,V2_MAX=458;\nvar GMIN={v1:454,v2:208,w:20.5352};\nvar step=0,spd=1,timer=null;\n\nvar cv=document.getElementById('rl-hm'),ctx=cv.getContext('2d');\nvar CW=cv.width,CH=cv.height;\nvar P={l:38,r:16,t:8,b:26};\nvar PW=CW-P.l-P.r,PH=CH-P.t-P.b;\n\nfunction px(v1,v2){return{x:P.l+(v1/V1_MAX)*PW,y:P.t+(1-v2/V2_MAX)*PH};}\n\nfunction wCol(w){\n  var t=(w-W_MIN)/(W_MAX-W_MIN),r,g,b;\n  if(t<0.25){r=68;g=Math.round(1+t*4*85);b=Math.round(84+t*4*80);}\n  else if(t<0.5){var s=(t-0.25)*4;r=Math.round(s*49);g=Math.round(86+s*82);b=Math.round(164-s*100);}\n  else if(t<0.75){var s=(t-0.5)*4;r=Math.round(49+s*174);g=Math.round(168+s*25);b=Math.round(64-s*30);}\n  else{var s=(t-0.75)*4;r=Math.round(223+s*30);g=Math.round(193-s*100);b=Math.round(34-s*20);}\n  return'rgb('+Math.min(255,Math.max(0,r))+','+Math.min(255,Math.max(0,g))+','+Math.min(255,Math.max(0,b))+')';\n}\n\n// Canvas offscreen para el fondo (malla)\nvar off=document.createElement('canvas');off.width=CW;off.height=CH;\nvar octx=off.getContext('2d');\n\nfunction rebuildBackground(){\n  octx.fillStyle='#111';octx.fillRect(0,0,CW,CH);\n  for(var i=0;i<GRID.length;i++){\n    var p=px(GRID[i][0],GRID[i][1]);\n    octx.fillStyle=wCol(GRID[i][2]);\n    octx.fillRect(p.x-2,p.y-2,4,4);\n  }\n  octx.strokeStyle='#333';octx.lineWidth=1;\n  octx.beginPath();octx.moveTo(P.l,P.t);octx.lineTo(P.l,P.t+PH);octx.stroke();\n  octx.beginPath();octx.moveTo(P.l,P.t+PH);octx.lineTo(P.l+PW,P.t+PH);octx.stroke();\n  octx.fillStyle='#555';octx.font='9px Roboto';octx.textAlign='center';\n  for(var v=0;v<=V1_MAX;v+=150){var p=px(v,0);octx.fillText(v,p.x,P.t+PH+14);}\n  octx.textAlign='right';\n  for(var v=0;v<=V2_MAX;v+=100){var p=px(0,v);octx.fillText(v,P.l-3,p.y+3);}\n}\n\nfunction draw(){\n  ctx.drawImage(off,0,0);\n  // Trazar el recorrido hasta el paso actual\n  if(PATH.length>1){\n    var pts=PATH.slice(0,step+1);\n    ctx.beginPath();ctx.strokeStyle='rgba(255,255,255,0.6)';ctx.lineWidth=1.5;\n    var s0=px(pts[0][1],pts[0][2]);ctx.moveTo(s0.x,s0.y);\n    for(var i=1;i<pts.length;i++){var pi=px(pts[i][1],pts[i][2]);ctx.lineTo(pi.x,pi.y);}\n    ctx.stroke();\n  }\n  // Mínimo global\n  var gm=px(GMIN.v1,GMIN.v2);\n  ctx.beginPath();ctx.arc(gm.x,gm.y,7,0,Math.PI*2);\n  ctx.strokeStyle='#f1c40f';ctx.lineWidth=2.5;ctx.stroke();\n  ctx.fillStyle='rgba(241,196,15,0.2)';ctx.fill();\n  ctx.fillStyle='#f1c40f';ctx.font='bold 9px Roboto';ctx.textAlign='left';ctx.fillText('MIN★',gm.x+9,gm.y+3);\n  if(PATH.length>0){\n    // Punto de inicio\n    var s0=px(PATH[0][1],PATH[0][2]);\n    ctx.beginPath();ctx.arc(s0.x,s0.y,4,0,Math.PI*2);ctx.fillStyle='#2ecc71';ctx.fill();\n    // Agente actual\n    if(step<PATH.length){\n      var cur=PATH[step];var cp=px(cur[1],cur[2]);\n      ctx.beginPath();ctx.arc(cp.x,cp.y,5,0,Math.PI*2);ctx.fillStyle='#e74c3c';ctx.fill();\n      ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();\n    }\n    var pct=(PATH.length>1?(step/(PATH.length-1)*100):0).toFixed(1);\n    var progFill=document.getElementById('rl-prog-fill');\n    var stepInfo=document.getElementById('rl-stepinfo');\n    if(progFill) progFill.style.width=pct+'%';\n    if(stepInfo) stepInfo.textContent='Paso '+(PATH[step]?PATH[step][0]:0)+' / '+(PATH.length-1);\n  }\n}\n\nfunction tick(){\n  if(!PATH.length||step>=PATH.length-1){clearInterval(timer);timer=null;return;}\n  step=Math.min(step+spd,PATH.length-1);\n  draw();\n}\n\n// ── API pública expuesta al DOM (botones del template) ────────────────────────\nwindow.rlPlay  = function(){if(PATH.length&&!timer)timer=setInterval(tick,40);};\nwindow.rlPause = function(){clearInterval(timer);timer=null;};\nwindow.rlReset = function(){rlPause();step=0;draw();};\nwindow.rlSpd   = function(s,b){\n  spd=s;\n  document.querySelectorAll('.spd').forEach(function(x){x.classList.remove('on');});\n  b.classList.add('on');\n};\n// ── API para otros templates (gráfico w, ticker) ──────────────────────────────\nwindow.rlGetStep = function(){return step;};\nwindow.rlGetPath = function(){return PATH;};\n\n// ── Puntos de entrada para carga de datos ────────────────────────────────────\nwindow._rl_loadGrid = function(data){\n  GRID = data;\n  rebuildBackground();\n  draw();\n  node&&node.status&&node.status({fill:'green',shape:'dot',text:'Malla pintada'});\n};\nwindow._rl_loadPath = function(data){\n  PATH = data;\n  step = 0;\n  draw();\n};\n\n// Dibujo inicial (canvas vacío)\nrebuildBackground();\ndraw();\n\n})();\n\n// ── Handler de mensajes Angular (recibe datos de los nodos CSV) ───────────────\nscope.$watch('msg', function(msg){\n  if(!msg || !msg.payload) return;\n  var d = msg.payload;\n  if(d.type === 'grid' && window._rl_loadGrid) window._rl_loadGrid(d.data);\n  else if(d.type === 'path' && window._rl_loadPath) window._rl_loadPath(d.data);\n});\n</script>",
+        "storeOutMessages": false,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 1160,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "rl_tpl_wchart",
+        "type": "ui_template",
+        "z": "tab_rl",
+        "group": "grp_rl_wvis",
+        "name": "Gráfico w Visual",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "format": "<div style=\"font-family:'Roboto',sans-serif;padding:10px;background:#0f1117;border-radius:8px;\">\n  <div style=\"color:#7ecfff;font-size:12px;font-weight:700;margin-bottom:6px;\">Evolución de w (función objetivo)</div>\n  <canvas id=\"rl-wc\" width=\"340\" height=\"220\"></canvas>\n</div>\n<script>\n(function(){\nvar cv=document.getElementById('rl-wc'),ctx=cv.getContext('2d');\nvar W=cv.width,H=cv.height,P={l:38,r:10,t:8,b:22};\nvar PW=W-P.l-P.r,PH=H-P.t-P.b;\nvar W_MIN=20.5352,W_MAX=23.0561,GMIN_W=20.5352;\nfunction drawW(upToStep){\n  ctx.clearRect(0,0,W,H);\n  ctx.fillStyle='#0f1117';ctx.fillRect(0,0,W,H);\n  var rng=W_MAX-W_MIN;\n  ctx.strokeStyle='#1e2030';ctx.lineWidth=1;\n  for(var i=0;i<=4;i++){var y=P.t+(i/4)*PH;ctx.beginPath();ctx.moveTo(P.l,y);ctx.lineTo(P.l+PW,y);ctx.stroke();\n    ctx.fillStyle='#555';ctx.font='9px Roboto';ctx.textAlign='right';\n    ctx.fillText((W_MAX-(i/4)*rng).toFixed(1),P.l-3,y+3);}\n  var yg=P.t+((W_MAX-GMIN_W)/rng)*PH;\n  ctx.strokeStyle='rgba(241,196,15,0.35)';ctx.lineWidth=1;ctx.setLineDash([3,4]);\n  ctx.beginPath();ctx.moveTo(P.l,yg);ctx.lineTo(P.l+PW,yg);ctx.stroke();\n  ctx.setLineDash([]);ctx.fillStyle='rgba(241,196,15,0.6)';ctx.font='8px Roboto';ctx.textAlign='left';\n  ctx.fillText('mín='+GMIN_W,P.l+2,yg-2);\n  if(!window.rlGetPath) return;\n  var PATH=window.rlGetPath();\n  if(!PATH || PATH.length < 2) return;\n  var TOTAL=PATH.length-1;\n  var pts=PATH.slice(0,upToStep+1);\n  if(pts.length<2) return;\n  ctx.beginPath();ctx.strokeStyle='#7ecfff';ctx.lineWidth=1.5;\n  for(var i=0;i<pts.length;i++){\n    var x=P.l+(pts[i][0]/TOTAL)*PW,y=P.t+((W_MAX-pts[i][3])/rng)*PH;\n    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}\n  ctx.stroke();\n  var last=pts[pts.length-1];\n  var lx=P.l+(last[0]/TOTAL)*PW,ly=P.t+((W_MAX-last[3])/rng)*PH;\n  ctx.beginPath();ctx.arc(lx,ly,3,0,Math.PI*2);ctx.fillStyle='#e74c3c';ctx.fill();\n  ctx.fillStyle='#666';ctx.font='9px Roboto';ctx.textAlign='center';\n  var step0=Math.round(TOTAL/4);\n  for(var v=0;v<=TOTAL;v+=step0){ctx.fillText(v,P.l+(v/TOTAL)*PW,P.t+PH+14);}\n}\nwindow.rlDrawW=drawW;\ndrawW(0);\nsetInterval(function(){if(window.rlGetStep)drawW(window.rlGetStep());},80);\n})();\n</script>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 960,
+        "y": 280,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "rl_tpl_info",
+        "type": "ui_template",
+        "z": "tab_rl",
+        "group": "grp_rl_wvis",
+        "name": "Info Dataset",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "format": "<div style=\"font-family:'Roboto',sans-serif;padding:10px;background:#0f1117;border-radius:8px;\">\n  <div style=\"color:#7ecfff;font-size:12px;font-weight:700;margin-bottom:8px;\">Info del Problema de Optimización</div>\n  <div style=\"background:#1a1d27;border-radius:6px;padding:10px;font-size:11px;line-height:2.0;color:#aaa;\">\n    <div style=\"display:flex;justify-content:space-between;border-bottom:1px solid #222;padding:3px 0;\">\n      <span>Espacio de búsqueda</span><b style=\"color:#7ecfff;\">763 × 459 = 179.600 celdas</b>\n    </div>\n    <div style=\"display:flex;justify-content:space-between;border-bottom:1px solid #222;padding:3px 0;\">\n      <span>Rango w</span><b style=\"color:#f39c12;\">20.5352 → 23.0561</b>\n    </div>\n    <div style=\"display:flex;justify-content:space-between;border-bottom:1px solid #222;padding:3px 0;\">\n      <span>Mínimo global</span><b style=\"color:#f1c40f;\">w=20.5352 @ (454, 208)</b>\n    </div>\n    <div style=\"display:flex;justify-content:space-between;border-bottom:1px solid #222;padding:3px 0;\">\n      <span>Pasos del mejor episodio</span><b style=\"color:#27ae60;\">637 pasos</b>\n    </div>\n    <div style=\"display:flex;justify-content:space-between;border-bottom:1px solid #222;padding:3px 0;\">\n      <span>Punto de inicio</span><b style=\"color:#aaa;\">(0, 374) w=22.606</b>\n    </div>\n    <div style=\"display:flex;justify-content:space-between;padding:3px 0;\">\n      <span>Mejora total</span><b style=\"color:#27ae60;\">▼ 2.071 (−9.2%)</b>\n    </div>\n  </div>\n</div>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 960,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "rl_tpl_ctrl_info",
+        "type": "ui_template",
+        "z": "tab_rl",
+        "group": "grp_rl_ctrl",
+        "name": "Info Control",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "format": "<div style=\"font-family:'Roboto',sans-serif;padding:8px;\"><div style=\"font-size:11px;font-weight:700;color:#7ecfff;margin-bottom:6px;\">Control del Episodio</div><div style=\"font-size:10px;color:#888;line-height:1.8;\">1. Pulsa <b>▶ Cargar Malla</b> y <b>▶ Cargar Recorrido</b><br/>2. Pulsa <b>▶ Play</b> para iniciar la animación<br/>3. Usa ×2/×5/×10 para acelerar<br/>El heatmap y los gráficos se actualizan en tiempo real</div></div>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 1200,
+        "y": 60,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "grp_rl_heatmap",
+        "type": "ui_group",
+        "name": "Malla de Optimización + Recorrido",
+        "tab": "tab_rl_ui",
+        "order": 2,
+        "disp": true,
+        "width": 18,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "grp_rl_wvis",
+        "type": "ui_group",
+        "name": "Evolución de w (Visualización)",
+        "tab": "tab_rl_ui",
+        "order": 3,
+        "disp": true,
+        "width": 8,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "grp_rl_ctrl",
+        "type": "ui_group",
+        "name": "Control ",
+        "tab": "tab_rl_ui",
+        "order": 1,
+        "disp": true,
+        "width": 4,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "tab_rl_ui",
+        "type": "ui_tab",
+        "name": "Agente RL — Mejor Episodio",
+        "icon": "track_changes",
+        "order": 3,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "4d8d7ecadc945cb0",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.6"
+        }
+    }
+]

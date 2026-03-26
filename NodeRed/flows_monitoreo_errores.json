@@ -1,0 +1,811 @@
+[
+    {
+        "id": "tab_rt_flow",
+        "type": "tab",
+        "label": "Monitor Tiempo Real",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "rt_ctrl_info",
+        "type": "ui_template",
+        "z": "tab_rt_flow",
+        "group": "grp_ctrl",
+        "name": "Info Simulación",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "format": "<style>\n.btn{padding:8px 22px;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;color:#fff;margin:4px;}\n.lbl{font-size:11px;color:#888;margin-top:6px;}\n</style>\n<div style=\"font-family:'Roboto',sans-serif;padding:8px;\">\n  <div style=\"margin-bottom:8px;font-size:12px;font-weight:700;color:#2c3e50;\">\n    Estado del sistema de simulación\n  </div>\n  <div style=\"background:#f8f9fa;border-radius:6px;padding:8px;font-size:11px;line-height:1.8;\">\n    <b>Distribución de muestras:</b><br/>\n    <span style=\"color:#27ae60;\">●</span> Normal: <b>94%</b> &nbsp;\n    <span style=\"color:#e67e22;\">●</span> Misalignment: <b>3%</b> &nbsp;\n    <span style=\"color:#e74c3c;\">●</span> Imbalance: <b>3%</b>\n    <br/>\n    <b>Cadencia:</b> 1 muestra cada 1s<br/>\n    <b>Outlier visible:</b> series <span style=\"font-weight:700;\">Alerta</span>\n    en gráficas RMS · Kurtosis · Crest Factor\n  </div>\n</div>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 820,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "rt_inj_norm",
+        "type": "inject",
+        "z": "tab_rt_flow",
+        "name": "Cargar Normal",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 200,
+        "y": 100,
+        "wires": [
+            [
+                "rt_file_norm"
+            ]
+        ]
+    },
+    {
+        "id": "rt_file_norm",
+        "type": "file in",
+        "z": "tab_rt_flow",
+        "name": "Normal CSV",
+        "filename": "/data/datos/normal/12.288.csv",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 420,
+        "y": 100,
+        "wires": [
+            [
+                "rt_csv_norm"
+            ]
+        ]
+    },
+    {
+        "id": "rt_csv_norm",
+        "type": "csv",
+        "z": "tab_rt_flow",
+        "name": "Parse Normal",
+        "sep": ",",
+        "hdrin": false,
+        "hdrout": "all",
+        "multi": "mult",
+        "ret": "\n",
+        "temp": "tachometer,acc_under_axial,acc_under_radiale,acc_under_tangencial,acc_over_axial,acc_over_radiale,acc_over_tangencial,microphone",
+        "skip": "0",
+        "strings": true,
+        "include_empty_strings": false,
+        "include_null_values": false,
+        "x": 630,
+        "y": 100,
+        "wires": [
+            [
+                "rt_lbl_norm"
+            ]
+        ]
+    },
+    {
+        "id": "rt_lbl_norm",
+        "type": "change",
+        "z": "tab_rt_flow",
+        "name": "label=Normal",
+        "rules": [
+            {
+                "t": "set",
+                "p": "label",
+                "pt": "msg",
+                "to": "Normal",
+                "tot": "str"
+            }
+        ],
+        "x": 820,
+        "y": 100,
+        "wires": [
+            [
+                "rt_fn_store"
+            ]
+        ]
+    },
+    {
+        "id": "rt_inj_mis",
+        "type": "inject",
+        "z": "tab_rt_flow",
+        "name": "Cargar Misalignment",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 190,
+        "y": 180,
+        "wires": [
+            [
+                "rt_file_mis"
+            ]
+        ]
+    },
+    {
+        "id": "rt_file_mis",
+        "type": "file in",
+        "z": "tab_rt_flow",
+        "name": "Misalignment CSV",
+        "filename": "/data/datos/horizontal-misalignment/1.0mm/12.288.csv",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 430,
+        "y": 180,
+        "wires": [
+            [
+                "rt_csv_mis"
+            ]
+        ]
+    },
+    {
+        "id": "rt_csv_mis",
+        "type": "csv",
+        "z": "tab_rt_flow",
+        "name": "Parse Misalignment",
+        "sep": ",",
+        "hdrin": false,
+        "hdrout": "all",
+        "multi": "mult",
+        "ret": "\n",
+        "temp": "tachometer,acc_under_axial,acc_under_radiale,acc_under_tangencial,acc_over_axial,acc_over_radiale,acc_over_tangencial,microphone",
+        "skip": "0",
+        "strings": true,
+        "include_empty_strings": false,
+        "include_null_values": false,
+        "x": 660,
+        "y": 180,
+        "wires": [
+            [
+                "rt_lbl_mis"
+            ]
+        ]
+    },
+    {
+        "id": "rt_lbl_mis",
+        "type": "change",
+        "z": "tab_rt_flow",
+        "name": "label=Misalignment",
+        "rules": [
+            {
+                "t": "set",
+                "p": "label",
+                "pt": "msg",
+                "to": "Misalignment",
+                "tot": "str"
+            }
+        ],
+        "x": 860,
+        "y": 180,
+        "wires": [
+            [
+                "rt_fn_store"
+            ]
+        ]
+    },
+    {
+        "id": "rt_inj_imb",
+        "type": "inject",
+        "z": "tab_rt_flow",
+        "name": "Cargar Imbalance",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 200,
+        "y": 260,
+        "wires": [
+            [
+                "rt_file_imb"
+            ]
+        ]
+    },
+    {
+        "id": "rt_file_imb",
+        "type": "file in",
+        "z": "tab_rt_flow",
+        "name": "Imbalance CSV",
+        "filename": "/data/datos/imbalance/20g/13.312.csv",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 420,
+        "y": 260,
+        "wires": [
+            [
+                "rt_csv_imb"
+            ]
+        ]
+    },
+    {
+        "id": "rt_csv_imb",
+        "type": "csv",
+        "z": "tab_rt_flow",
+        "name": "Parse Imbalance",
+        "sep": ",",
+        "hdrin": false,
+        "hdrout": "all",
+        "multi": "mult",
+        "ret": "\n",
+        "temp": "tachometer,acc_under_axial,acc_under_radiale,acc_under_tangencial,acc_over_axial,acc_over_radiale,acc_over_tangencial,microphone",
+        "skip": "0",
+        "strings": true,
+        "include_empty_strings": false,
+        "include_null_values": false,
+        "x": 640,
+        "y": 260,
+        "wires": [
+            [
+                "rt_lbl_imb"
+            ]
+        ]
+    },
+    {
+        "id": "rt_lbl_imb",
+        "type": "change",
+        "z": "tab_rt_flow",
+        "name": "label=Imbalance",
+        "rules": [
+            {
+                "t": "set",
+                "p": "label",
+                "pt": "msg",
+                "to": "Imbalance",
+                "tot": "str"
+            }
+        ],
+        "x": 840,
+        "y": 260,
+        "wires": [
+            [
+                "rt_fn_store"
+            ]
+        ]
+    },
+    {
+        "id": "rt_fn_store",
+        "type": "function",
+        "z": "tab_rt_flow",
+        "name": "Almacenar Rows en Global",
+        "func": "var label = msg.label || 'unknown';\nvar rows  = Array.isArray(msg.payload) ? msg.payload : [msg.payload];\nvar COLS = ['tachometer','acc_under_axial','acc_under_radiale','acc_under_tangencial',\n            'acc_over_axial','acc_over_radiale','acc_over_tangencial','microphone'];\nvar parsed = rows.map(function(r){\n    var obj = {};\n    COLS.forEach(function(k){ var v=parseFloat(r[k]); obj[k]=isFinite(v)?v:0; });\n    return obj;\n}).filter(function(r){ return r.tachometer !== undefined; });\n\nif (parsed.length === 0) { node.warn('CSV vacío para ' + label); return null; }\nglobal.set('rows_' + label, parsed);\nnode.status({fill:'green', shape:'dot', text: label+': '+parsed.length+' filas ✓'});\nnode.warn('Cargado ' + label + ' — ' + parsed.length + ' filas');\nreturn null;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1160,
+        "y": 180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "rt_btn_start",
+        "type": "ui_button",
+        "z": "tab_rt_flow",
+        "name": "Iniciar Stream",
+        "group": "grp_ctrl",
+        "order": 3,
+        "width": 4,
+        "height": 1,
+        "passthru": false,
+        "label": "▶ Iniciar Simulación",
+        "tooltip": "",
+        "color": "#fff",
+        "bgcolor": "#27ae60",
+        "className": "",
+        "icon": "",
+        "payload": "start",
+        "payloadType": "str",
+        "topic": "",
+        "topicType": "str",
+        "x": 200,
+        "y": 360,
+        "wires": [
+            [
+                "rt_fn_ctrl"
+            ]
+        ]
+    },
+    {
+        "id": "rt_btn_stop",
+        "type": "ui_button",
+        "z": "tab_rt_flow",
+        "name": "Parar Stream",
+        "group": "grp_ctrl",
+        "order": 2,
+        "width": 4,
+        "height": 1,
+        "passthru": false,
+        "label": "⏹ Detener",
+        "tooltip": "",
+        "color": "#fff",
+        "bgcolor": "#e74c3c",
+        "className": "",
+        "icon": "",
+        "payload": "stop",
+        "payloadType": "str",
+        "topic": "",
+        "topicType": "str",
+        "x": 190,
+        "y": 420,
+        "wires": [
+            [
+                "rt_fn_ctrl"
+            ]
+        ]
+    },
+    {
+        "id": "rt_fn_ctrl",
+        "type": "function",
+        "z": "tab_rt_flow",
+        "name": "Control Start/Stop",
+        "func": "var start = (msg.payload !== 'stop');\nglobal.set('streaming', start);\nif (start) {\n    flow.set('totalTicks', 0);\n    flow.set('faultTicks', 0);\n    flow.set('faultLog',   []);\n    node.status({fill:'green', shape:'ring', text:'▶ Activo'});\n} else {\n    node.status({fill:'red', shape:'dot', text:'⏹ Parado'});\n}\nreturn null;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 390,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "rt_ticker",
+        "type": "inject",
+        "z": "tab_rt_flow",
+        "name": "Tick 250 ms",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "1",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 190,
+        "y": 540,
+        "wires": [
+            [
+                "rt_fn_sampler"
+            ]
+        ]
+    },
+    {
+        "id": "rt_fn_sampler",
+        "type": "function",
+        "z": "tab_rt_flow",
+        "name": "Sampler 94/3/3 + Ventana Deslizante",
+        "func": "\n// Fires every 0.25 s (inject repeat).\n// Picks one row from the mixed distribution (94/3/3),\n// appends to a rolling buffer, computes window metrics.\n\nif (!global.get('streaming')) { return null; }\n\nvar rows_N = global.get('rows_Normal')       || [];\nvar rows_M = global.get('rows_Misalignment') || [];\nvar rows_I = global.get('rows_Imbalance')    || [];\n\nif (rows_N.length === 0) {\n    node.warn('Carga los tres CSVs primero (Normal, Misalignment, Imbalance).');\n    return null;\n}\n\n// ── Source selection 94 / 3 / 3 ───────────────────────────────────────────\nvar r = Math.random();\nvar source, pool;\nif      (r < 0.94) { source = 'Normal';       pool = rows_N; }\nelse if (r < 0.97) { source = 'Misalignment'; pool = rows_M.length ? rows_M : rows_N; }\nelse               { source = 'Imbalance';    pool = rows_I.length ? rows_I : rows_N; }\n\nvar row = pool[Math.floor(Math.random() * pool.length)];\n\n// ── Rolling window (256 samples) ──────────────────────────────────────────\nvar buf = context.get('buf') || [];\nbuf.push(row);\nif (buf.length > 256) buf.shift();\ncontext.set('buf', buf);\n\n// ── Fault history — last 100 ticks for fault-rate % ───────────────────────\nvar fh = context.get('fh') || [];\nfh.push(source !== 'Normal' ? 1 : 0);\nif (fh.length > 100) fh.shift();\ncontext.set('fh', fh);\nvar faultRate = fh.length\n    ? +(fh.reduce(function(s,x){return s+x;},0) / fh.length * 100).toFixed(1)\n    : 0;\n\n// ── Statistical helpers ────────────────────────────────────────────────────\nfunction col(c){ return buf.map(function(r){ var v=parseFloat(r[c]); return isFinite(v)?v:0; }); }\nfunction mean(a){ return a.reduce(function(s,x){return s+x;},0)/a.length; }\nfunction rms(a){  return Math.sqrt(a.reduce(function(s,x){return s+x*x;},0)/a.length); }\nfunction std(a){  var m=mean(a); return Math.sqrt(a.reduce(function(s,x){return s+Math.pow(x-m,2);},0)/a.length); }\nfunction kurt(a){ var m=mean(a),s=std(a); if(s<1e-14)return 3;\n                  return a.reduce(function(t,x){return t+Math.pow((x-m)/s,4);},0)/a.length; }\nfunction absMax(a){ return a.reduce(function(s,x){return Math.abs(x)>s?Math.abs(x):s;},0); }\nfunction crest(a){ var r2=rms(a); return r2<1e-14?0:absMax(a)/r2; }\nfunction dc(a){    var m=mean(a); return a.map(function(x){return x-m;}); }\nfunction sf(v){    var n=parseFloat(v); return isFinite(n)?n:0; }\n\n// ── Per-channel metrics on window ─────────────────────────────────────────\nvar ACOLS = ['acc_under_axial','acc_under_radiale','acc_under_tangencial',\n             'acc_over_axial','acc_over_radiale','acc_over_tangencial'];\nvar maxKurt=0, sumCrest=0, sumRMS=0;\nvar perCh = {};\nACOLS.forEach(function(c){\n    var v = dc(col(c));\n    var k = sf(kurt(v)), cr = sf(crest(v)), rv = sf(rms(v));\n    if(k > maxKurt) maxKurt = k;\n    sumCrest += cr; sumRMS += rv;\n    perCh[c] = { rms:+rv.toFixed(6), kurtosis:+k.toFixed(4), crest:+cr.toFixed(4) };\n});\nvar meanCrest = +(sumCrest / ACOLS.length).toFixed(4);\nvar meanRMS   = +(sumRMS   / ACOLS.length).toFixed(6);\n\n// ── Tick counters (persist across calls via flow context) ─────────────────\nvar total  = (flow.get('totalTicks') || 0) + 1;\nvar faults = (flow.get('faultTicks') || 0) + (source !== 'Normal' ? 1 : 0);\nflow.set('totalTicks', total);\nflow.set('faultTicks', faults);\n\n// ── Fault log (last 20 events) ────────────────────────────────────────────\nvar isFault = source !== 'Normal';\nif (isFault) {\n    var log = flow.get('faultLog') || [];\n    log.unshift({ t: new Date().toLocaleTimeString(), source: source,\n                  kurtosis: +maxKurt.toFixed(3), crest: +meanCrest.toFixed(3) });\n    if (log.length > 20) log.pop();\n    flow.set('faultLog', log);\n}\n\nvar t = Date.now();\nmsg.payload = {\n    source:      source,\n    is_fault:    isFault,\n    timestamp:   t,\n    buf_size:    buf.length,\n    max_kurtosis:+maxKurt.toFixed(4),\n    mean_crest:  meanCrest,\n    mean_rms:    meanRMS,\n    per_channel: perCh,\n    fault_rate:  faultRate,\n    total_ticks: total,\n    fault_ticks: faults,\n    fault_log:   flow.get('faultLog') || []\n};\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 540,
+        "wires": [
+            [
+                "rt_fmt_rms",
+                "rt_fmt_kurt",
+                "rt_fmt_crest",
+                "rt_fmt_multi",
+                "rt_fmt_gauge"
+            ]
+        ]
+    },
+    {
+        "id": "rt_fmt_rms",
+        "type": "function",
+        "z": "tab_rt_flow",
+        "name": "fmt RMS",
+        "func": "var d = msg.payload;\nmsg.topic   = d.is_fault ? 'Alerta' : 'Normal';\nmsg.payload = d.mean_rms;\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 440,
+        "wires": [
+            [
+                "rt_chart_rms"
+            ]
+        ]
+    },
+    {
+        "id": "rt_fmt_kurt",
+        "type": "function",
+        "z": "tab_rt_flow",
+        "name": "fmt Kurtosis + Umbral",
+        "func": "var d = msg.payload;\nmsg.topic   = d.is_fault ? 'Alerta' : 'Normal';\nmsg.payload = d.max_kurtosis;\nnode.send(msg);\nnode.send({ topic: 'Umbral K=3', payload: 3 });\nreturn null;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 500,
+        "wires": [
+            [
+                "rt_chart_kurt"
+            ]
+        ]
+    },
+    {
+        "id": "rt_fmt_crest",
+        "type": "function",
+        "z": "tab_rt_flow",
+        "name": "fmt Crest + Ref",
+        "func": "var d = msg.payload;\nmsg.topic   = d.is_fault ? 'Alerta' : 'Normal';\nmsg.payload = d.mean_crest;\nnode.send(msg);\nnode.send({ topic: 'Ref. Normal', payload: 1.4 });\nreturn null;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 560,
+        "wires": [
+            [
+                "rt_chart_crest"
+            ]
+        ]
+    },
+    {
+        "id": "rt_fmt_multi",
+        "type": "function",
+        "z": "tab_rt_flow",
+        "name": "fmt Multi-Canal",
+        "func": "var d = msg.payload;\nObject.keys(d.per_channel).forEach(function (ch) {\n    node.send({\n        topic: ch.replace('acc_', '').replace(/_/g, ' '),\n        payload: d.per_channel[ch].rms\n    });\n});\nreturn null;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 620,
+        "wires": [
+            [
+                "rt_chart_multi"
+            ]
+        ]
+    },
+    {
+        "id": "rt_fmt_gauge",
+        "type": "function",
+        "z": "tab_rt_flow",
+        "name": "fmt Fault Rate",
+        "func": "\nmsg.payload = parseFloat(msg.payload.fault_rate) || 0;\nreturn msg;\n",
+        "outputs": 1,
+        "x": 720,
+        "y": 680,
+        "wires": [
+            [
+                "rt_gauge_fault"
+            ]
+        ]
+    },
+    {
+        "id": "rt_chart_rms",
+        "type": "ui_chart",
+        "z": "tab_rt_flow",
+        "name": "RMS por Canal (ventana 256)",
+        "group": "grp_rms_rt",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "label": "RMS medio acelerómetros",
+        "chartType": "line",
+        "legend": true,
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "Inicia la simulación con ▶",
+        "dot": true,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": "1",
+        "removeOlderPoints": "300",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#e74c3c",
+            "#27ae60",
+            "#95a5a6",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 960,
+        "y": 440,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "rt_chart_kurt",
+        "type": "ui_chart",
+        "z": "tab_rt_flow",
+        "name": "Kurtosis Máxima",
+        "group": "grp_kurt_rt",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "label": "Kurtosis máx.   |  línea umbral K=3",
+        "chartType": "line",
+        "legend": true,
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "Inicia la simulación con ▶",
+        "dot": true,
+        "ymin": "0",
+        "ymax": "",
+        "removeOlder": "1",
+        "removeOlderPoints": "300",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#e74c3c",
+            "#27ae60",
+            "#bdc3c7",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 960,
+        "y": 500,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "rt_chart_crest",
+        "type": "ui_chart",
+        "z": "tab_rt_flow",
+        "name": "Crest Factor Medio",
+        "group": "grp_crest_rt",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "label": "Crest Factor medio ",
+        "chartType": "line",
+        "legend": true,
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "Inicia la simulación con ▶",
+        "dot": true,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": "1",
+        "removeOlderPoints": "300",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#e74c3c",
+            "#27ae60",
+            "#bdc3c7",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 970,
+        "y": 560,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "rt_chart_multi",
+        "type": "ui_chart",
+        "z": "tab_rt_flow",
+        "name": "RMS Multi-Canal",
+        "group": "grp_multi_rt",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "label": "RMS por canal acelerómetro (ventana 256)",
+        "chartType": "line",
+        "legend": true,
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "Inicia la simulación con ▶",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": "1",
+        "removeOlderPoints": "300",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#3498db",
+            "#e74c3c",
+            "#f39c12",
+            "#2ecc71",
+            "#9b59b6",
+            "#1abc9c",
+            "#000000",
+            "#000000",
+            "#000000"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 990,
+        "y": 620,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "rt_gauge_fault",
+        "type": "ui_gauge",
+        "z": "tab_rt_flow",
+        "name": "Tasa de Fallo",
+        "group": "grp_ctrl",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Tasa de Fallo (últ. 100 muestras)",
+        "label": "%",
+        "format": "{{value}}%",
+        "min": 0,
+        "max": "10",
+        "colors": [
+            "#27ae60",
+            "#f39c12",
+            "#e74c3c"
+        ],
+        "seg1": "3.3",
+        "seg2": "6.6",
+        "diff": false,
+        "className": "",
+        "x": 960,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "grp_ctrl",
+        "type": "ui_group",
+        "name": "Control de Simulación",
+        "tab": "tab_rt",
+        "order": 1,
+        "disp": true,
+        "width": 8,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "grp_rms_rt",
+        "type": "ui_group",
+        "name": "RMS (ventana 256)",
+        "tab": "tab_rt",
+        "order": 3,
+        "disp": true,
+        "width": 10,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "grp_kurt_rt",
+        "type": "ui_group",
+        "name": "Kurtosis Máx. — Umbral K=3",
+        "tab": "tab_rt",
+        "order": 4,
+        "disp": true,
+        "width": 10,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "grp_crest_rt",
+        "type": "ui_group",
+        "name": "Crest Factor Medio",
+        "tab": "tab_rt",
+        "order": 5,
+        "disp": true,
+        "width": 10,
+        "collapse": false
+    },
+    {
+        "id": "grp_multi_rt",
+        "type": "ui_group",
+        "name": "RMS Multi-Canal (6 acelerómetros)",
+        "tab": "tab_rt",
+        "order": 6,
+        "disp": true,
+        "width": 10,
+        "collapse": false
+    },
+    {
+        "id": "tab_rt",
+        "type": "ui_tab",
+        "name": "Monitoreo Errores",
+        "icon": "timeline",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "d16eeff61a8c79e8",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.6"
+        }
+    }
+]

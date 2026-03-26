@@ -1,0 +1,567 @@
+[
+    {
+        "id": "tab_norm_flow",
+        "type": "tab",
+        "label": "Comparación Normal",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "norm_inj_load",
+        "type": "inject",
+        "z": "tab_norm_flow",
+        "name": "Cargar Normal",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 200,
+        "y": 100,
+        "wires": [
+            [
+                "norm_file_norm"
+            ]
+        ]
+    },
+    {
+        "id": "norm_file_norm",
+        "type": "file in",
+        "z": "tab_norm_flow",
+        "name": "Normal CSV",
+        "filename": "/data/datos/normal/12.288.csv",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 420,
+        "y": 100,
+        "wires": [
+            [
+                "norm_csv_norm"
+            ]
+        ]
+    },
+    {
+        "id": "norm_csv_norm",
+        "type": "csv",
+        "z": "tab_norm_flow",
+        "name": "Parse Normal",
+        "sep": ",",
+        "hdrin": false,
+        "hdrout": "all",
+        "multi": "mult",
+        "ret": "\n",
+        "temp": "tachometer,acc_under_axial,acc_under_radiale,acc_under_tangencial,acc_over_axial,acc_over_radiale,acc_over_tangencial,microphone",
+        "skip": "0",
+        "strings": true,
+        "include_empty_strings": false,
+        "include_null_values": false,
+        "x": 630,
+        "y": 100,
+        "wires": [
+            [
+                "norm_fn_store"
+            ]
+        ]
+    },
+    {
+        "id": "norm_fn_store",
+        "type": "function",
+        "z": "tab_norm_flow",
+        "name": "Almacenar Rows Normal",
+        "func": "var rows = Array.isArray(msg.payload) ? msg.payload : [msg.payload];\nvar COLS = ['tachometer','acc_under_axial','acc_under_radiale','acc_under_tangencial',\n            'acc_over_axial','acc_over_radiale','acc_over_tangencial','microphone'];\nvar parsed = rows.map(function(r){\n    var obj = {};\n    COLS.forEach(function(k){ var v=parseFloat(r[k]); obj[k]=isFinite(v)?v:0; });\n    return obj;\n}).filter(function(r){ return r.tachometer !== undefined; });\n\nif (parsed.length === 0) { node.warn('CSV vacío'); return null; }\nflow.set('rows_Normal_cmp', parsed);\nnode.status({fill:'green', shape:'dot', text:'Normal: '+parsed.length+' filas ✓'});\nnode.warn('Cargado Normal (comparación) — ' + parsed.length + ' filas');\nreturn null;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "norm_btn_start",
+        "type": "ui_button",
+        "z": "tab_norm_flow",
+        "name": "Iniciar Stream Normal",
+        "group": "grp_ctrl_norm",
+        "order": 2,
+        "width": 3,
+        "height": 3,
+        "passthru": false,
+        "label": "▶  Iniciar (Solo Normal)",
+        "tooltip": "",
+        "color": "#fff",
+        "bgcolor": "#27ae60",
+        "className": "",
+        "icon": "",
+        "payload": "start",
+        "payloadType": "str",
+        "topic": "",
+        "topicType": "str",
+        "x": 200,
+        "y": 260,
+        "wires": [
+            [
+                "norm_fn_ctrl"
+            ]
+        ]
+    },
+    {
+        "id": "norm_btn_stop",
+        "type": "ui_button",
+        "z": "tab_norm_flow",
+        "name": "Parar Stream Normal",
+        "group": "grp_ctrl_norm",
+        "order": 3,
+        "width": 3,
+        "height": 3,
+        "passthru": false,
+        "label": "⏹ Detener",
+        "tooltip": "",
+        "color": "#fff",
+        "bgcolor": "#e74c3c",
+        "className": "",
+        "icon": "",
+        "payload": "stop",
+        "payloadType": "str",
+        "topic": "",
+        "topicType": "str",
+        "x": 200,
+        "y": 320,
+        "wires": [
+            [
+                "norm_fn_ctrl"
+            ]
+        ]
+    },
+    {
+        "id": "norm_fn_ctrl",
+        "type": "function",
+        "z": "tab_norm_flow",
+        "name": "Control Start/Stop Normal",
+        "func": "var start = (msg.payload !== 'stop');\nflow.set('streaming_norm', start);\nif (start) {\n    flow.set('totalTicks_norm', 0);\n    node.status({fill:'green', shape:'ring', text:'▶ Activo'});\n} else {\n    node.status({fill:'red', shape:'dot', text:'⏹ Parado'});\n}\nreturn null;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 280,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "norm_ticker",
+        "type": "inject",
+        "z": "tab_norm_flow",
+        "name": "Tick 250 ms",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "1",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 190,
+        "y": 440,
+        "wires": [
+            [
+                "norm_fn_sampler"
+            ]
+        ]
+    },
+    {
+        "id": "norm_fn_sampler",
+        "type": "function",
+        "z": "tab_norm_flow",
+        "name": "Sampler 100% Normal + Ventana Deslizante",
+        "func": "// Fires every 0.25 s — sólo datos Normal, sin fallos.\nif (!flow.get('streaming_norm')) { return null; }\n\nvar rows_N = flow.get('rows_Normal_cmp') || [];\nif (rows_N.length === 0) {\n    node.warn('Carga primero el CSV Normal.');\n    return null;\n}\n\n// Siempre Normal — sin mezcla de fallos\nvar row = rows_N[Math.floor(Math.random() * rows_N.length)];\n\n// Rolling window (256 samples)\nvar buf = context.get('buf') || [];\nbuf.push(row);\nif (buf.length > 256) buf.shift();\ncontext.set('buf', buf);\n\n// Helpers estadísticos\nfunction col(c){ return buf.map(function(r){ var v=parseFloat(r[c]); return isFinite(v)?v:0; }); }\nfunction mean(a){ return a.reduce(function(s,x){return s+x;},0)/a.length; }\nfunction rms(a){  return Math.sqrt(a.reduce(function(s,x){return s+x*x;},0)/a.length); }\nfunction std(a){  var m=mean(a); return Math.sqrt(a.reduce(function(s,x){return s+Math.pow(x-m,2);},0)/a.length); }\nfunction kurt(a){ var m=mean(a),s=std(a); if(s<1e-14)return 3;\n                  return a.reduce(function(t,x){return t+Math.pow((x-m)/s,4);},0)/a.length; }\nfunction absMax(a){ return a.reduce(function(s,x){return Math.abs(x)>s?Math.abs(x):s;},0); }\nfunction crest(a){ var r2=rms(a); return r2<1e-14?0:absMax(a)/r2; }\nfunction dc(a){   var m=mean(a); return a.map(function(x){return x-m;}); }\nfunction sf(v){   var n=parseFloat(v); return isFinite(n)?n:0; }\n\nvar ACOLS = ['acc_under_axial','acc_under_radiale','acc_under_tangencial',\n             'acc_over_axial','acc_over_radiale','acc_over_tangencial'];\nvar maxKurt=0, sumCrest=0, sumRMS=0;\nvar perCh = {};\nACOLS.forEach(function(c){\n    var v = dc(col(c));\n    var k = sf(kurt(v)), cr = sf(crest(v)), rv = sf(rms(v));\n    if(k > maxKurt) maxKurt = k;\n    sumCrest += cr; sumRMS += rv;\n    perCh[c] = { rms:+rv.toFixed(6), kurtosis:+k.toFixed(4), crest:+cr.toFixed(4) };\n});\nvar meanCrest = +(sumCrest / ACOLS.length).toFixed(4);\nvar meanRMS   = +(sumRMS   / ACOLS.length).toFixed(6);\n\nvar total = (flow.get('totalTicks_norm') || 0) + 1;\nflow.set('totalTicks_norm', total);\n\nvar t = Date.now();\nmsg.payload = {\n    source:       'Normal',\n    is_fault:     false,\n    timestamp:    t,\n    buf_size:     buf.length,\n    max_kurtosis: +maxKurt.toFixed(4),\n    mean_crest:   meanCrest,\n    mean_rms:     meanRMS,\n    per_channel:  perCh,\n    fault_rate:   0,\n    total_ticks:  total\n};\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 440,
+        "wires": [
+            [
+                "norm_fmt_rms",
+                "norm_fmt_kurt",
+                "norm_fmt_crest",
+                "norm_fmt_multi"
+            ]
+        ]
+    },
+    {
+        "id": "norm_fmt_rms",
+        "type": "function",
+        "z": "tab_norm_flow",
+        "name": "fmt RMS",
+        "func": "msg.topic   = 'Normal';\nmsg.payload = msg.payload.mean_rms;\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 840,
+        "y": 340,
+        "wires": [
+            [
+                "norm_chart_rms"
+            ]
+        ]
+    },
+    {
+        "id": "norm_fmt_kurt",
+        "type": "function",
+        "z": "tab_norm_flow",
+        "name": "fmt Kurtosis + Umbral",
+        "func": "var d = msg.payload;\nmsg.topic   = 'Normal';\nmsg.payload = d.max_kurtosis;\nnode.send(msg);\nnode.send({ topic: 'Umbral K=3', payload: 3 });\nreturn null;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 840,
+        "y": 400,
+        "wires": [
+            [
+                "norm_chart_kurt"
+            ]
+        ]
+    },
+    {
+        "id": "norm_fmt_crest",
+        "type": "function",
+        "z": "tab_norm_flow",
+        "name": "fmt Crest + Ref",
+        "func": "var d = msg.payload;\nmsg.topic   = 'Normal';\nmsg.payload = d.mean_crest;\nnode.send(msg);\nnode.send({ topic: 'Ref. Normal', payload: 1.4 });\nreturn null;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 840,
+        "y": 460,
+        "wires": [
+            [
+                "norm_chart_crest"
+            ]
+        ]
+    },
+    {
+        "id": "norm_fmt_multi",
+        "type": "function",
+        "z": "tab_norm_flow",
+        "name": "fmt Multi-Canal",
+        "func": "var d = msg.payload;\nObject.keys(d.per_channel).forEach(function(ch){\n    node.send({\n        topic:   ch.replace('acc_','').replace(/_/g,' '),\n        payload: d.per_channel[ch].rms\n    });\n});\nreturn null;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 840,
+        "y": 520,
+        "wires": [
+            [
+                "norm_chart_multi"
+            ]
+        ]
+    },
+    {
+        "id": "norm_chart_rms",
+        "type": "ui_chart",
+        "z": "tab_norm_flow",
+        "name": "RMS Medio (Normal)",
+        "group": "grp_rms_norm",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "label": "RMS medio acelerómetros",
+        "chartType": "line",
+        "legend": true,
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "Inicia la simulación con ▶",
+        "dot": true,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": "1",
+        "removeOlderPoints": "300",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#27ae60",
+            "#2980b9",
+            "#95a5a6",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 1080,
+        "y": 340,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "norm_chart_kurt",
+        "type": "ui_chart",
+        "z": "tab_norm_flow",
+        "name": "Kurtosis Máxima (Normal)",
+        "group": "grp_kurt_norm",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "label": "Kurtosis máx.  |  línea umbral K=3",
+        "chartType": "line",
+        "legend": true,
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "Inicia la simulación con ▶",
+        "dot": true,
+        "ymin": "0",
+        "ymax": "",
+        "removeOlder": "1",
+        "removeOlderPoints": "300",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#27ae60",
+            "#95a5a6",
+            "#bdc3c7",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 1080,
+        "y": 400,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "norm_chart_crest",
+        "type": "ui_chart",
+        "z": "tab_norm_flow",
+        "name": "Crest Factor (Normal)",
+        "group": "grp_crest_norm",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "label": "Crest Factor medio",
+        "chartType": "line",
+        "legend": true,
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "Inicia la simulación con ▶",
+        "dot": true,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": "1",
+        "removeOlderPoints": "300",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#27ae60",
+            "#95a5a6",
+            "#bdc3c7",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 1080,
+        "y": 460,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "norm_chart_multi",
+        "type": "ui_chart",
+        "z": "tab_norm_flow",
+        "name": "RMS Multi-Canal (Normal)",
+        "group": "grp_multi_norm",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "label": "RMS por canal acelerómetro (ventana 256) ",
+        "chartType": "line",
+        "legend": true,
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "Inicia la simulación con ▶",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": "1",
+        "removeOlderPoints": "300",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#3498db",
+            "#27ae60",
+            "#f39c12",
+            "#2ecc71",
+            "#9b59b6",
+            "#1abc9c",
+            "#000000",
+            "#000000",
+            "#000000"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 1110,
+        "y": 520,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "norm_ctrl_info",
+        "type": "ui_template",
+        "z": "tab_norm_flow",
+        "group": "grp_ctrl_norm",
+        "name": "Info Comparación",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "format": "<div style=\"font-family:'Roboto',sans-serif;padding:8px;\">\n  <div style=\"margin-bottom:8px;font-size:12px;font-weight:700;color:#1e8449;\">\n   Dashboard de Referencia — Solo datos Normales\n  </div>\n  <div style=\"background:#eafaf1;border-radius:6px;padding:8px;font-size:11px;line-height:1.8;\">\n    Este flujo replica exactamente la lógica del flujo principal<br/>\n    pero <b>sin inyectar fallos</b>. Su uso es unicamente como línea base <br/>\n    para comparar como debería comportarse un rodamiento normal sin fallos<br/>\n    visualmente cómo se comportan RMS, Kurtosis y Crest Factor<br/>\n    cuando el rodamiento está en estado <b style=\"color:#1e8449;\">normal</b>.\n  </div>\n</div>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 890,
+        "y": 200,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "grp_ctrl_norm",
+        "type": "ui_group",
+        "name": "Control",
+        "tab": "tab_norm_ui",
+        "order": 1,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "grp_rms_norm",
+        "type": "ui_group",
+        "name": "RMS (ventana 256)",
+        "tab": "tab_norm_ui",
+        "order": 2,
+        "disp": true,
+        "width": 12,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "grp_kurt_norm",
+        "type": "ui_group",
+        "name": "Kurtosis Máx.",
+        "tab": "tab_norm_ui",
+        "order": 3,
+        "disp": true,
+        "width": 12,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "grp_crest_norm",
+        "type": "ui_group",
+        "name": "Crest Factor Medio",
+        "tab": "tab_norm_ui",
+        "order": 4,
+        "disp": true,
+        "width": 12,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "grp_multi_norm",
+        "type": "ui_group",
+        "name": "RMS Multi-Canal (6 acelerómetros)",
+        "tab": "tab_norm_ui",
+        "order": 5,
+        "disp": true,
+        "width": 12,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "tab_norm_ui",
+        "type": "ui_tab",
+        "name": "Comparación Normal",
+        "icon": "check_circle",
+        "order": 2,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "12c1a07251da443f",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.6"
+        }
+    }
+]
