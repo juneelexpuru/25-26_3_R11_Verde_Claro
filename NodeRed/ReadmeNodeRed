@@ -1,14 +1,14 @@
 Directory Structure and Setup
 For the Node-RED flow to function correctly, you need to create a data folder that contains a subfolder named Datos (resulting in the path /data/Datos).
 
-1. Grid/Heatmap Flow (Flujo de la Malla)
+1. Grid/Heatmap Flow
 For this flow to work, you must place the following files into that same folder (/data/Datos):
 
 Datos_v2.csv (the second grid).
 
 mejor_recorrido_agente.csv. This file is generated from the agente_RL_V2.ipynb notebook and contains the shortest path the agent took to reach the global minimum in the grid. However, to save you from having to run the notebook again, it is already provided in this folder.
 
-2. Simulation Flows (Los otros dos flujos)
+2. Simulation Flows
 For the other two flows to function, you need to place the CSV data from the bearing_fault_detection_reduced dataset into the data/Datos folder. You must strictly maintain their original folder structure. The required files are:
 
 /imbalance/20g/13.312.csv
