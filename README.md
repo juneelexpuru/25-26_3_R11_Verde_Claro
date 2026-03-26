@@ -12,6 +12,7 @@ This project focuses on the digital transformation of electric motor manufacturi
 ## 2. Repository Structure
 Following the project requirements, the code is divided into functional units:
 
+```text
 ├── 01_Preprocessing/
 │   └── signal_preprocessing.ipynb    # Detrending, Hamming Windowing, and Quality Control
 ├── 02_Feature_Extraction/
