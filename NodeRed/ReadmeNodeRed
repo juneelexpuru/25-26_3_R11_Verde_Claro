@@ -1,8 +1,18 @@
-Para el correcto funcionamiento del flujo nodered tienen que crearse una carpetas data que dentro contenga la subcarpeta Datos (quedando tal que así /data/Datos).
+Directory Structure and Setup
+For the Node-RED flow to function correctly, you need to create a data folder that contains a subfolder named Datos (resulting in the path /data/Datos).
 
-Para el funcionamiento del flujo de la malla, habra que meter en esa misma carpeta el csv "Datos_v2.csv" (la segunda malla) y el csv "mejor_recorrido_agente.csv" el 
-cual se genera del notebook "agente_RL_V2.ipynb" y es el recorrido de menor pasos que ha seguido el agente para llegar al minimo global en la malla, sin embargo para 
-no repetir la ejecucion se facilita en esta misma carpeta.
+1. Grid/Heatmap Flow (Flujo de la Malla)
+For this flow to work, you must place the following files into that same folder (/data/Datos):
 
-Para el funcionamiento de los otros dos flujos habrá que introducir en la carpeta "data/Datos" los datos csv provenientes del set de datos "bearing_fault_detection_reduced";
-"/imbalance/20g/13.312.csv" , "/horizontal-misalignment/1.0mm/12.288.csv" , "/normal/12.288" siempre respetando su estructura de carpetas.
+Datos_v2.csv (the second grid).
+
+mejor_recorrido_agente.csv. This file is generated from the agente_RL_V2.ipynb notebook and contains the shortest path the agent took to reach the global minimum in the grid. However, to save you from having to run the notebook again, it is already provided in this folder.
+
+2. Simulation Flows (Los otros dos flujos)
+For the other two flows to function, you need to place the CSV data from the bearing_fault_detection_reduced dataset into the data/Datos folder. You must strictly maintain their original folder structure. The required files are:
+
+/imbalance/20g/13.312.csv
+
+/horizontal-misalignment/1.0mm/12.288.csv
+
+/normal/12.288.csv
