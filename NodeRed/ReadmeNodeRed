@@ -16,3 +16,5 @@ For the other two flows to function, you need to place the CSV data from the bea
 /horizontal-misalignment/1.0mm/12.288.csv
 
 /normal/12.288.csv
+
+***  ALL "INJECT" NODES MUST BE TRIGGERED IN ORDER FOR THE DASHBOARD TO LOAD DE INFORMATION CORRECTLY ***
