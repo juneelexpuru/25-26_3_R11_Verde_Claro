@@ -1,19 +1,17 @@
-# 25-26_3_R11_Verde_Claro
 # Reto 11: Digital Transformation in Electric Motor Manufacturing
 
 ## 1. Project Overview
-[cite_start]This project focuses on the digital transformation of electric motor manufacturing and maintenance, aligning with **Industry 4.0** and **Industry 5.0** principles[cite: 3, 26]. [cite_start]The goal is to optimize motor design, simulate production lines, and implement advanced predictive maintenance systems through mechatronics and data science[cite: 4, 304].
+This project focuses on the digital transformation of electric motor manufacturing and maintenance, aligning with **Industry 4.0** and **Industry 5.0** principles. The goal is to optimize motor design, simulate production lines, and implement advanced predictive maintenance systems through mechatronics and data science.
 
 ### Core Objectives
-* [cite_start]**Design Optimization:** Propose the 5 best motor designs using Multi-Objective Evolutionary Algorithms (MOEAs) based on 6 geometric parameters[cite: 247, 318].
-* [cite_start]**Manufacturing Simulation:** Model assembly lines and manage stocks (copper/aluminum) using **SymPy** to identify bottlenecks[cite: 23, 24].
-* [cite_start]**Intelligent Control:** Use **Reinforcement Learning (RL)** to minimize active power consumption in electric drives[cite: 9, 250].
-* [cite_start]**Predictive Maintenance:** Identify bearing anomalies (ball, cage, and race faults) using **Signal Analysis** (FFT/DSP)[cite: 18, 252].
+* **Design Optimization:** Propose the 5 best motor designs using Multi-Objective Evolutionary Algorithms (MOEAs) based on 6 geometric parameters.
+* **Manufacturing Simulation:** Model assembly lines and manage stocks (copper/aluminum) using **SymPy** to identify bottlenecks.
+* **Intelligent Control:** Use **Reinforcement Learning (RL)** to minimize active power consumption in electric drives.
+* **Predictive Maintenance:** Identify bearing anomalies (ball, cage, and race faults) using **Signal Analysis** (FFT/DSP).
 
 ## 2. Repository Structure
-[cite_start]Following the project requirements, the code is divided into functional units[cite: 263]:
+Following the project requirements, the code is divided into functional units:
 
-```text
 ├── 01_Preprocessing/
 │   └── signal_preprocessing.ipynb    # Detrending, Hamming Windowing, and Quality Control
 ├── 02_Feature_Extraction/
