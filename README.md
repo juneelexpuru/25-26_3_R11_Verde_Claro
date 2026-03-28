@@ -23,14 +23,23 @@ This project focuses on the digital transformation of electric motor manufacturi
 Following the project requirements, the code is divided into functional units:
 
 ```text
-├── 01_Preprocessing/
-│   └── signal_preprocessing.ipynb    # Detrending, Hamming Windowing, and Quality Control
-├── 02_Feature_Extraction/
-│   └── extraction_pipeline.ipynb     # Time and Frequency domain feature extraction
-├── 03_Modeling/
-│   ├── design_optimization_moo.ipynb # MOEA implementation (NSGA-II, NSGA-III)
-│   ├── rl_power_optimization.ipynb  # Q-Learning agent for active power stabilization
-│   └── fault_diagnosis_model.ipynb   # Hybrid classification and severity regression
-├── 04_Visualization/
-│   └── dashboard_logic.py            # Logic for Node-RED and Looker Studio integration
+├── Datos/
+├── Graficos/
+├── NodeRed/
+├── Scripts/
+├── 01_Optimization/
+│   └── moea_optimization.ipynb 
+│   └── surrogate_model.ipynb    
+├── 02_RL/
+│   └── agente_RL_V1.ipynb
+│   └── agente_RL_V2.ipynb
+│   └── env_V1.ipynb
+│   └── env_V2.ipynb
+├── 03_Validacion/
+│   ├── 01_Procesamiento_Senal
+│   ├── 02_Extraccion_caracteristicas
+│   └── 03_Modelado_Predictivo_Base
+│   └── 04_Optimizacion_y_Seleccion_variables
+├── 04_Simulacion/
+│   └── 04_SimulacionSimpy.py            
 └── README.md                         # Project documentation (this file)
